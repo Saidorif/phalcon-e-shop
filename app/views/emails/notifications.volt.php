@@ -12,12 +12,11 @@
 	<div style="padding:10px 25px;background-color:#eee;margin-top:35px;margin-bottom:35px;text-align:left;font-size:15px;">
 		<h2><?php echo $title ?></h2>
         <h4><?php echo $message ?></h4>
-         <?php if($items) : ?>
+         <?php if(count($items) > 1) : ?>
         <?php foreach($items as $key => $item) : ?>
-            <img src="http://lorempixel.com/400/200/" height="100" width="auto" alt="<?php echo $item['image']; ?>">
-            <p>Price : <?php echo $item['price']; ?></p>
-            <p>Name : <?php echo $item['name']; ?></p>
-            <p>Name : <?php echo print_r($item); ?></p>
+			<p><?php echo $items[$key]['image'];?></p>
+            <p>Price : <?php echo $items[$key]['price']; ?></p>
+            <p>Name : <?php echo $items[$key]['name']; ?></p>
         <?php endforeach; ?>
         <?php endif; ?>
 	</div>	

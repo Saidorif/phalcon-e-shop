@@ -8,6 +8,7 @@ use Products\Model\Products;
 use Products\Form\NotificationForm;
 use Webform\Model\Webform;
 use Cms\Model\Settings;
+use Admin\Model\AdminUser;
 
 class NotificationController extends Controller
 {
@@ -197,7 +198,7 @@ class NotificationController extends Controller
     public function sendAction($id)
     {
         $id = $id;
-        $items = ['message' => '', 'title' => ''];
+        $texts = ['message' => '', 'title' => ''];
         $notification = Notification::findFirst($id);
         $home_url = $this->url->get();
         foreach($notification->products as $key => $prod_id)
@@ -210,31 +211,37 @@ class NotificationController extends Controller
                 $items[$key]['price'] = $product->getPrice();
             }
         }
-        $items['message'] = strip_tags($notification->getMessage());
-        $items['title'] = $notification->getTitle();
-        
+        $texts['message'] = strip_tags($notification->getMessage());
+        $texts['title'] = $notification->getTitle();
         
         $model = new Webform();
 
         $settings = Settings::findFirst(1);
 
-        $from = 'sayyid2112@gmail.com';
+        //$from = 'sayyid2112@gmail.com';
         $name = $settings->getSiteName();
 
-        $mailer = $model->mailconfig($from, $name);
+        $users = AdminUser::find('active = "1"');
 
         $params = [
             'items' => $items,
-            'message' => $items['message'],
-            'title' => $items['title'],
+            'message' => $texts['message'],
+            'title' => $texts['title'],
         ];
 
-        $viewPath = 'emails/notifications';
-                    
-        $message = $mailer->createMessageFromView($viewPath, $params)
-            ->to($settings->getEmail(), 'Обратная связь')
-            ->subject('Обратная связь');
-        $message->send();
+        foreach($users as $user)
+        {
+            $from = $user->getEmail();
+            $mailer = $model->mailconfig($settings->getEmail(), $name);
+    
+            $viewPath = 'emails/notifications';
+                        
+            $message = $mailer->createMessageFromView($viewPath, $params)
+                ->to($from, 'New sale begin!')
+                ->subject('New sale begin!');
+            $message->send();
+        }
+
 
         $this->flash->success($this->helper->at('Notification sent'));
         $this->redirect($this->url->get() . 'products/notification');
